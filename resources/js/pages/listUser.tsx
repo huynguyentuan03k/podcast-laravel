@@ -10,10 +10,11 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Edit, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "lucide-react";
 import axios, { AxiosError } from "axios";
+import { router } from "@inertiajs/react";
 
 
 type User = {
@@ -21,9 +22,6 @@ type User = {
   name: string;
   email: string;
 };
-
-
-
 
 export default function UserList() {
     
@@ -51,6 +49,26 @@ export default function UserList() {
         getAll()
     },[])
 
+    const handleEdit = (id: string) => {
+      // Navigate to edit page with user ID
+      router.push(`/users/edit/${id}`);
+    };
+
+    const handleDelete = async (id: string) =>{
+      try {     
+        console.log("delete user "+id)
+        if(confirm("are you sure delete user ?")){
+            const response = await axios.delete(`/api/users/${id}`)
+            if(response.data){
+                setUsers(users.filter((u) => u.id !== id));
+            }
+            console.log(response.data)
+        }
+      } catch (error) {
+        console.error("error delete user : ", error)
+      }
+    }
+
   return (
     
     <AppLayout breadcrumbs={[{ title: "Users", href: "/users" }]}>
@@ -74,12 +92,15 @@ export default function UserList() {
                 <TableCell>{user.name}</TableCell>
                 <TableCell>{user.email}</TableCell>
                 <TableCell className="space-x-2">
-                  <button onClick={() => console.log("Edit", user.id)}>
+
+                  <button onClick={()=> handleEdit(user.id)}>
                     <Edit className="inline-block h-4 w-4" />
                   </button>
-                  <button onClick={() => console.log("Delete", user.id)}>
+
+                  <button onClick={() => handleDelete(user.id)}>
                     <Trash2 className="inline-block h-4 w-4" />
                   </button>
+
                 </TableCell>
               </TableRow>
             ))}

@@ -1,61 +1,123 @@
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+
 import AppLayout from "@/layouts/app-layout";
-import {useForm} from "react-hook-form"
-export default function UpdateUser(){
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useForm } from "react-hook-form";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { useRouter, useParams } from "next/navigation";
+import axios from "axios";
+import { useEffect, useState } from "react";
 
-interface FormValues{
-    name: string,
-    email: string,
-    email_verified_at: string,
-    remember_token: string,
-}
+type FormValues = {
+  email: string;
+  name: string;
+  password?: string;
+};
 
-    const {register, reset, handleSubmit, formState:{errors}} =
-    useForm<FormValues>({
-        defaultValues: {
-            name: "",
-            email: "",
-            email_verified_at: "",
-            remember_token: ""
-        }
-    })
+export default function EditUserPage() {
+  const { id } = useParams();
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<FormValues>({
+    defaultValues: { email: "", name: "", password: undefined },
+  });
 
-    return(
-        <AppLayout>
-            <Card>
-                
-                <CardHeader>
-                    <CardTitle>title Card</CardTitle>
-                    <CardDescription>this is a page update information user</CardDescription>
-                </CardHeader>
+  // Fetch user data and populate form
+  useEffect(() => {
+    async function fetchUser() {
+      setLoading(true);
+      try {
+        const response = await axios.get(`/api/users/${id}`);
+        const { email, name } = response.data;
+        reset({ email, name, password: "" });
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    if (id) fetchUser();
+  }, [id, reset]);
 
-                <CardContent>
-                    {/* field name */}
-                    <div>
-                        <label htmlFor="">name</label>
-                        <Input
-                        {
-                            ...register("name",{
-                                required:"username khong duoc bo trong",
-                                minLength:{
-                                    value:4,
-                                    message: "username khong duoc nho hon 4"
-                                }
-                            })
-                        }
-                        placeholder="nguyen van a"
-                        />
-                    </div>
-                    
-                </CardContent>
-                
-                <CardFooter>
-                    <span>Footer Card</span>
-                </CardFooter>
+  const onSubmit = async (data: FormValues) => {
+    try {
+      await axios.put(`/api/users/${id}`, data);
+      alert("User updated successfully");
+      router.push("/users");
+    } catch (error) {
+      console.error("Error updating user:", error);
+      alert("Failed to update user");
+    }
+  };
 
+  if (loading) {
+    return (
+      <AppLayout breadcrumbs={[{ title: "Edit User", href: `/users/edit/${id}` }]}>  
+        <p className="p-4">Loading user data...</p>
+      </AppLayout>
+    );
+  }
 
-            </Card>
-        </AppLayout>
-    )
+  return (
+    <AppLayout breadcrumbs={[
+      { title: "Users", href: "/users" },
+      { title: "Edit User", href: `/users/edit/${id}` },
+    ]}>
+      <div className="p-4 max-w-md mx-auto">
+        <Card>
+          <CardHeader>
+            <CardTitle>Edit User</CardTitle>
+            <CardDescription>Update user information below.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium">Email</label>
+                <Input
+                  {...register("email", {
+                    required: "Email is required",
+                    pattern: {
+                      value: /^\S+@\S+$/i,
+                      message: "Invalid email",
+                    },
+                  })}
+                />
+                {errors.email && (
+                  <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium">Name</label>
+                <Input
+                  {...register("name", {
+                    required: "Name is required",
+                    minLength: { value: 3, message: "Name must be at least 3 characters" },
+                  })}
+                />
+                {errors.name && (
+                  <p className="mt-1 text-xs text-red-600">{errors.name.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium">New Password</label>
+                <Input type="password" {...register("password")} placeholder="Leave blank to keep unchanged" />
+              </div>
+
+              <Button type="submit">Save Changes</Button>
+            </form>
+          </CardContent>
+          <CardFooter>
+            <Button variant="outline" onClick={() => router.push("/users")}>Cancel</Button>
+          </CardFooter>
+        </Card>
+      </div>
+    </AppLayout>
+  );
 }
