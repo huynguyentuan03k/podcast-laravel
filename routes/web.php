@@ -32,10 +32,13 @@ Route::get('/listUser',fn(): InertiaResponse =>
     Inertia::render('listUser')
 );
 
+// Route::get('/users/edit/{id}', function ($id): InertiaResponse {
+//     return Inertia::render('updateUser', ['id' => $id]);
+// });
+
 Route::get('/users/edit/{id}', function ($id): InertiaResponse {
     return Inertia::render('updateUser', ['id' => $id]);
 });
-
 
 
 require __DIR__.'/settings.php';

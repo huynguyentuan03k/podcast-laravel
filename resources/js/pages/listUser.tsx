@@ -51,7 +51,7 @@ export default function UserList() {
 
     const handleEdit = (id: string) => {
       // Navigate to edit page with user ID
-      router.push(`/users/edit/${id}`);
+      router.visit(`/users/edit/${id}`);
     };
 
     const handleDelete = async (id: string) =>{
