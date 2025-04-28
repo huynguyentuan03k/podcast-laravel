@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { CloudCog } from "lucide-react";
 import api from "@/lib/axios"
 import axios, { AxiosError } from "axios";
+import { router } from "@inertiajs/react";
 
 
 interface FormValues {
@@ -15,6 +16,9 @@ interface FormValues {
 }
 
 export default function CreateUserPage() {
+  const handleNaviage = () =>{
+    router.visit('/listUser')
+  }
   const {
     register,
     handleSubmit,
@@ -30,6 +34,7 @@ export default function CreateUserPage() {
         if(response.data){
             alert("user created: ")
         }
+        handleNaviage()
         reset();
         console.log("user created: ", response.data)
     }catch(e){
@@ -122,14 +127,18 @@ export default function CreateUserPage() {
                     {errors.password && (<p className="mt-1 text-xs text-red-600">{errors.password.message}</p>)}
                 </div>
 
-                    <Button type="submit">Create User</Button>
+                    <Button className="mt-1" type="submit">Create User</Button>
                 </form>
+
+                <Button onClick={()=> handleNaviage()} className="mt-1">Back List Users</Button>
             </CardContent>
 
 
             <CardFooter>
                 <span>email is required.</span>
             </CardFooter>
+
+            
 
         </Card>
  

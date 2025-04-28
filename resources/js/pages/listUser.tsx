@@ -54,6 +54,10 @@ export default function UserList() {
       router.visit(`/users/edit/${id}`);
     };
 
+    const handleCreateUser = () => {
+      router.visit('/createUser')
+    }
+
     const handleDelete = async (id: string) =>{
       try {     
         console.log("delete user "+id)
@@ -73,9 +77,9 @@ export default function UserList() {
     
     <AppLayout breadcrumbs={[{ title: "Users", href: "/users" }]}>
       <div className="p-4">
-           <Button>
-            <Link href="/createUser">Create User</Link>
-           </Button>
+         <Button onClick={ () => handleCreateUser()}>
+              create user
+         </Button>
         <Table>
           <TableHeader>
             <TableRow>

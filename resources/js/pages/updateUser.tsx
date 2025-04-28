@@ -15,7 +15,7 @@ interface FormValues {
 }
 
 export default function UpdateUserPage() {
-  const { id } = usePage().props as { id: string };
+  const { id } = usePage().props as {id : string}
   const [loading, setLoading] = useState(false);
   
   const {
